@@ -32,6 +32,11 @@ export async function tasksRoutes(app: FastifyInstance) {
 
     app.post('/', async (request, reply) => {
 
+        const paramsUpdateTaskSchema = z.object({
+            id: z.string().uuid(),
+        })
+        const { id } = paramsUpdateTaskSchema.parse(request.params);
+        
         const bodyUpdateTaskSchema = z.object({
             title: z.string(),
             description: z.string(),
@@ -39,11 +44,6 @@ export async function tasksRoutes(app: FastifyInstance) {
         })
 
         const { title, description, status } = bodyUpdateTaskSchema.parse(request.body)
-
-        const paramsUpdateTaskSchema = z.object({
-            id: z.string().uuid(),
-        })
-        const { id } = paramsUpdateTaskSchema.parse(request.params);
 
         const sessionId = request.cookies.sessionId
         const { user_id } = await knexQB('sessions').where('id', sessionId).first('user_id')
