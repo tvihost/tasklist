@@ -1,8 +1,14 @@
-import { FastifyInstance } from "fastify"
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { z } from 'zod'
 import crypto from 'node:crypto'
 import cookie from '@fastify/cookie'
 import { knexQB } from "../config/database"
+
+function denyAccess(reply: FastifyReply)
+{
+  reply.code(401).send({ error: 'Unauthorized operation.' })
+  return
+}
 
 export async function authRoutes(app: FastifyInstance) {
     app.post('/login', async (request, reply) => {
@@ -24,9 +30,25 @@ export async function authRoutes(app: FastifyInstance) {
                 id: sessionId,
                 user_id: id
             })
-            return reply.cookie("sessionId", sessionId).send()
+            return reply.cookie('sessionId', sessionId, {
+                path: '/',
+                maxAge: 1000 * 60 * 60 * 24 * 1 // 1 dia
+            }).send()
         }
 
-        return reply.status(401).send
+        return reply.status(401).send()
+    })
+
+    app.get('/logout', async (request:FastifyRequest,reply:FastifyReply) => {
+        const sessionId = request.cookies.sessionId
+        if(!sessionId)  
+        {
+            denyAccess(reply)
+        }
+
+        await knexQB('sessions').where('id',sessionId).delete()
+
+
+        reply.clearCookie('sessionId').send({"message":"Logout realizado com sucesso"})
     })
 }

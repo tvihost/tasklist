@@ -3,15 +3,15 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 
 function denyAccess(reply: FastifyReply)
 {
-  reply.code(401).send({ error: 'Unauthorized' });
-  return;
+  reply.code(401).send({ error: 'Unauthorized' })
+  return
 }
 
 export async function authMiddleware(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const sessionId = request.cookies.sessionId;
+  const sessionId = request.cookies.sessionId
 
   if (!sessionId) {
     denyAccess(reply)
