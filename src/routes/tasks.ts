@@ -30,13 +30,13 @@ export async function tasksRoutes(app: FastifyInstance) {
         return { task }
     })
 
-    app.post('/', async (request, reply) => {
+    app.put('/:id', async (request, reply) => {
 
         const paramsUpdateTaskSchema = z.object({
             id: z.string().uuid(),
         })
         const { id } = paramsUpdateTaskSchema.parse(request.params);
-        
+
         const bodyUpdateTaskSchema = z.object({
             title: z.string(),
             description: z.string(),
@@ -48,7 +48,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         const sessionId = request.cookies.sessionId
         const { user_id } = await knexQB('sessions').where('id', sessionId).first('user_id')
 
-        const updateTask = await knexQB('sessions').where({
+        const updateTask = await knexQB('tasks').where({
             id:id,
             user_id:user_id
         }).update({
@@ -65,7 +65,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         return reply.status(404).send({'error':'Tarefa não encontrada.'})
     })
 
-    app.post('/:id', async (request, reply) => {
+    app.post('/', async (request, reply) => {
 
         const requestCreateTasksSchema = z.object({
             title: z.string(),
@@ -78,14 +78,16 @@ export async function tasksRoutes(app: FastifyInstance) {
 
         const { user_id } = await knexQB('sessions').where('id', sessionId).first('user_id')
 
+        const task_id = crypto.randomUUID()
+
         await knexQB('tasks').insert({
-            id: crypto.randomUUID(),
+            id: task_id,
             user_id: user_id,
             title: title,
             description: description
         })
 
-        return reply.status(201).send
+        return reply.status(201).send({"id":task_id})
     })
 
     app.delete('/:id', async (request,reply) => {
