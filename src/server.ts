@@ -9,7 +9,7 @@ const app = fastify();
 
 app.register(cookie)
 app.register(cors, {
-    origin: 'http://localhost:3002', // Allow requests from any origin
+    origin: 'http://localhost:3003', // Allow requests from any origin
     methods: ['GET', 'POST', 'PUT','DELETE'], // Allow only GET and POST requests
     credentials: true
 });
