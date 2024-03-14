@@ -10,8 +10,8 @@ function denyAccess(reply: FastifyReply)
   return
 }
 
-export async function authRoutes(app: FastifyInstance) {
-    app.post('/login', async (request, reply) => {
+export async function authRoutes(app: any) {
+    app.post('/login', async (request:any, reply:any) => {
 
         const doLoginSchema = z.object({
             email: z.string(),
@@ -39,7 +39,7 @@ export async function authRoutes(app: FastifyInstance) {
         return reply.status(401).send()
     })
 
-    app.get('/logout', async (request:FastifyRequest,reply:FastifyReply) => {
+    app.get('/logout', async (request:any, reply:any) => {
         const sessionId = request.cookies.sessionId
         if(!sessionId)  
         {
@@ -50,5 +50,21 @@ export async function authRoutes(app: FastifyInstance) {
 
 
         reply.clearCookie('sessionId').send({"message":"Logout realizado com sucesso"})
+    })
+
+    app.get('/checkSession',async (request:any, reply:any) => {
+        const sessionId = request.cookies.sessionId
+
+        if (!sessionId) {
+          denyAccess(reply)
+        }
+        
+        const checkSessionId = await knexQB('sessions').where('id',sessionId).first()
+      
+        if(!checkSessionId) {
+          denyAccess(reply)
+        }
+
+        reply.code(200).send({"isLoggedIn":true})
     })
 }

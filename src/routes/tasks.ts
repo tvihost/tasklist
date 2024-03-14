@@ -1,10 +1,9 @@
-import { FastifyInstance } from "fastify"
 import { z } from 'zod'
 import crypto from 'node:crypto'
 import { knexQB } from "../config/database"
 import { authMiddleware } from '../middlewares/authMiddleware'
 
-export async function tasksRoutes(app: FastifyInstance) {
+export async function tasksRoutes(app: any) {
 
     app.addHook('preHandler', authMiddleware)
 
@@ -13,7 +12,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         return { tasks }
     })
 
-    app.get('/:id', async (request,reply) => {
+    app.get('/:id', async (request:any,reply:any) => {
         const getTaskSchema = z.object({
             id: z.string().uuid(),
         })
@@ -30,7 +29,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         return { task }
     })
 
-    app.put('/:id', async (request, reply) => {
+    app.put('/:id', async (request:any,reply:any) => {
 
         const paramsUpdateTaskSchema = z.object({
             id: z.string().uuid(),
@@ -65,7 +64,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         return reply.status(404).send({'error':'Tarefa não encontrada.'})
     })
 
-    app.post('/', async (request, reply) => {
+    app.post('/', async (request:any,reply:any) => {
 
         const requestCreateTasksSchema = z.object({
             title: z.string(),
@@ -90,7 +89,7 @@ export async function tasksRoutes(app: FastifyInstance) {
         return reply.status(201).send({"id":task_id})
     })
 
-    app.delete('/:id', async (request,reply) => {
+    app.delete('/:id', async (request:any,reply:any) => {
         const deleteTaskSchema = z.object({
             id: z.string().uuid(),
         })
